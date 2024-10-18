@@ -18,12 +18,12 @@
    - Выполняет работы по запросам, которые ему назначены.
    - Закрывает запрос после выполнения работ (метод PUT `/updateRequest`).
 
-[Предметная область](./description.pdf).
+[Предметная область](./description.txt)
 
 ## Этапы рефакторинга
 ### Первый этап:
 1. Исправить структуру проекта согласно [стандарту](https://github.com/golang-standards/project-layout)
-2. Добавить логирование ([zap](https://github.com/uber-go/zap))
+2. Добавить логирование [zap](https://github.com/uber-go/zap)
 3. Исправить названия ручек, следуя RESTful Naming Conventions
 4. Добавить коды состояния для ответов от сервера
 5. Добавить обрабочик ошибок
@@ -36,3 +36,5 @@
 1. Добавить мониторинг [Prometheus](https://github.com/prometheus/prometheus)
 2. Интегрировать проверку безопасности системы с помощью [gosec](https://github.com/securego/gosec)
 3. Написать Makefile для автоматизации тестирования + linter
+
+![picture](https://github.com/user-attachments/assets/47b8005f-9e4e-4988-9bca-443c9f5c84d7)
