@@ -1,12 +1,13 @@
-package rest
+package api
 
 import (
-	"app/internal/models"
+	"app/internal/domain"
 	"github.com/gin-gonic/gin"
 	jwt "github.com/kyfk/gin-jwt"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func (h *handler) NewAuth() (jwt.Auth, error) {
+func (s *server) NewAuth() (jwt.Auth, error) {
 	return jwt.New(jwt.Auth{
 		SecretKey: []byte("secret"),
 		Authenticator: func(c *gin.Context) (jwt.MapClaims, error) {
@@ -18,10 +19,10 @@ func (h *handler) NewAuth() (jwt.Auth, error) {
 				return nil, jwt.ErrorAuthenticationFailed
 			}
 
-			var user models.User
-			h.db.Where("username = ?", req.Username).First(&user)
+			var user domain.User
+			s.db.Where("username = ?", req.Username).First(&user)
 
-			if CheckPasswordHash(req.Password, user.Password) {
+			if checkPasswordHash(req.Password, user.Password) {
 				return nil, jwt.ErrorAuthenticationFailed
 			}
 
@@ -35,41 +36,51 @@ func (h *handler) NewAuth() (jwt.Auth, error) {
 			if !ok {
 				return nil, nil
 			}
-			var user = models.User{
+			var user = domain.User{
 				Username: username,
 			}
-			h.db.First(&user)
+			s.db.First(&user)
 			return user, nil
 		},
 	})
 }
 
-func (h *handler) Register(c *gin.Context) {
-	var user = models.User{}
+func (s *server) Register(c *gin.Context) {
+	var user = domain.User{}
 	if err := c.ShouldBind(&user); err != nil {
 		c.JSON(400, err)
 		return
 	}
 
-	hash, _ := HashPassword(user.Password)
+	hash, _ := hashPassword(user.Password)
 	user.Password = hash
 
-	h.db.Create(&user)
+	s.db.Create(&user)
 	c.JSON(200, user)
 }
 
 func Worker(m jwt.Auth) gin.HandlerFunc {
 	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims) == models.RoleWorker
+		return role(claims) == domain.RoleWorker
 	})
 }
 
 func Dispatcher(m jwt.Auth) gin.HandlerFunc {
 	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims) == models.RoleDispatcher
+		return role(claims) == domain.RoleDispatcher
 	})
 }
 
-func role(claims jwt.MapClaims) models.Role {
-	return models.Role(claims["role"].(string))
+func role(claims jwt.MapClaims) domain.Role {
+	return domain.Role(claims["role"].(string))
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err != nil
 }
