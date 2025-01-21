@@ -27,8 +27,11 @@ func Run(db *gorm.DB, logger *zap.SugaredLogger) {
 	server := New(r, db, logger)
 
 	server.group = server.router.Group("/api/v1")
+
 	server.group.GET("/ping", ping)
+
 	server.Router()
+	server.AuthRouter()
 
 	if err := server.router.Run(":8080"); err != nil {
 		logger.Fatal("Failed to run router", "err", err)

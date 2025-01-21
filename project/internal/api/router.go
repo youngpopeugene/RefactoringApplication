@@ -1,24 +1,14 @@
 package api
 
 import (
+	"app/internal/domain"
 	"app/internal/gateway"
 	"app/internal/infrastructure/httputil"
 	"github.com/gin-gonic/gin"
-	jwt "github.com/kyfk/gin-jwt"
 	"net/http"
 )
 
 func (s *server) Router() {
-	auth, err := s.NewAuth()
-	if err != nil {
-		s.logger.Fatal(err)
-	}
-	s.group.Use(jwt.ErrorHandler)
-
-	// Auth
-	s.group.POST("/login", auth.Authenticate)
-	s.group.POST("/register", s.Register)
-
 	// Substations
 	s.group.GET("/substations/:pk", s.GetSubstationByPK)
 
@@ -54,14 +44,14 @@ func (s *server) Router() {
 	s.group.GET("/transformers/types/:pk", s.GetTypeOfTransformerByPK)
 
 	// Requests
-	s.group.GET("/requests", Dispatcher(auth), s.GetAllRequests)
-	s.group.GET("/requests/:pk", s.GetRequestByPK)
-	s.group.GET("/workers/:username/requests", s.GetRequestsByWorkerUsername)
-	s.group.POST("/requests", Dispatcher(auth), s.CreateRequest)
-	s.group.PUT("/requests", Worker(auth), s.UpdateRequest)
+	s.group.GET("/requests", s.Middleware(), s.GetAllRequests)
+	s.group.GET("/requests/:pk", s.Middleware(), s.GetRequestByPK)
+	s.group.GET("/workers/:username/requests", s.RoleMiddleware(domain.RoleDispatcher), s.GetRequestsByWorkerUsername)
+	s.group.POST("/requests", s.RoleMiddleware(domain.RoleDispatcher), s.CreateRequest)
+	s.group.PUT("/requests", s.RoleMiddleware(domain.RoleWorker), s.UpdateRequest)
 
 	// Users workers
-	s.group.GET("users/workers", Dispatcher(auth), s.GetAllUsersWorkers)
+	s.group.GET("users/workers", s.RoleMiddleware(domain.RoleDispatcher), s.GetAllUsersWorkers)
 }
 
 func (s *server) GetSubstationByPK(c *gin.Context) {
@@ -268,7 +258,7 @@ func (s *server) CreateRequest(c *gin.Context) {
 		TransformerFactoryNumber int    `json:"transformer_factory_number"`
 	}
 	if err := c.ShouldBind(&obj); err != nil {
-		s.logger.Error("invalid input")
+		s.logger.Errorw("Invalid input", "err", err)
 		httputil.NewResponse(c, http.StatusBadRequest, "error", err.Error(), nil)
 		return
 	}
@@ -276,7 +266,7 @@ func (s *server) CreateRequest(c *gin.Context) {
 	gw := gateway.NewGateway(s.db)
 	request, err := gw.CreateRequest(obj.WorkerUsername, obj.TransformerFactoryNumber)
 	if err != nil {
-		s.logger.Error("failed to create request")
+		s.logger.Errorw("Failed to create request", "err", err)
 		httputil.NewResponse(c, http.StatusBadRequest, "error", err.Error(), nil)
 		return
 	}
@@ -289,7 +279,7 @@ func (s *server) UpdateRequest(c *gin.Context) {
 		TransformerFactoryNumber int    `json:"transformer_factory_number"`
 	}
 	if err := c.ShouldBind(&obj); err != nil {
-		s.logger.Error("invalid input")
+		s.logger.Errorw("Invalid input", "err", err)
 		httputil.NewResponse(c, http.StatusBadRequest, "error", err.Error(), nil)
 		return
 	}
@@ -297,7 +287,7 @@ func (s *server) UpdateRequest(c *gin.Context) {
 	gw := gateway.NewGateway(s.db)
 	request, err := gw.UpdateRequest(obj.WorkerUsername, obj.TransformerFactoryNumber)
 	if err != nil {
-		s.logger.Error("failed to update request")
+		s.logger.Errorw("Failed to update request", "err", err)
 		httputil.NewResponse(c, http.StatusBadRequest, "error", err.Error(), nil)
 		return
 	}

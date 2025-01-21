@@ -225,3 +225,35 @@ func (gw *gateway) UpdateRequest(workerUsername string, transformerFactoryNumber
 	gw.db.Save(&request)
 	return request, nil
 }
+
+func (gw *gateway) SaveUser(user domain.User) error {
+	if err := gw.db.Create(&user).Error; err != nil {
+		return errors.New("user not saved")
+	}
+	return nil
+}
+
+func (gw *gateway) GetUserByName(username string) (domain.User, error) {
+	var user domain.User
+	if tx := gw.db.Where("username = ?", username).First(&user); tx.RowsAffected == 0 {
+		return user, errors.New("user not found")
+	}
+	return user, nil
+}
+
+func (gw *gateway) SaveRefreshToken(refreshToken domain.Token) error {
+	if err := gw.db.Create(&refreshToken).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (gw *gateway) DeactivateRefreshTokens(username string) error {
+	if err :=
+		gw.db.Model(&domain.Token{}).
+			Where("username = ?", username).
+			Update("active", false).Error; err != nil {
+		return err
+	}
+	return nil
+}
