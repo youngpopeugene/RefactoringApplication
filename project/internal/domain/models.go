@@ -1,4 +1,4 @@
-package models
+package domain
 
 import (
 	"time"
@@ -111,4 +111,15 @@ type User struct {
 	Username string `gorm:"primaryKey" json:"username"`
 	Password string `json:"password"`
 	Role     Role   `json:"role"`
+}
+
+type JWT struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type Token struct {
+	UUID     string `gorm:"primaryKey" json:"uuid"`
+	Username string `json:"username"`
+	Active   bool   `json:"active"`
 }
