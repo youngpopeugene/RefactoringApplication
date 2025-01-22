@@ -4,8 +4,9 @@ import (
 	"app/internal/domain"
 	"app/internal/gateway"
 	"app/internal/infrastructure/httputil"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (s *server) Router() {

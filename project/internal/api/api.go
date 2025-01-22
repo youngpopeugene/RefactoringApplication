@@ -1,10 +1,11 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 type server struct {
@@ -22,14 +23,10 @@ func New(router *gin.Engine, db *gorm.DB, logger *zap.SugaredLogger) *server {
 	}
 }
 
-func Run(db *gorm.DB, logger *zap.SugaredLogger) {
-	r := gin.Default()
+func Run(r *gin.Engine, db *gorm.DB, logger *zap.SugaredLogger) {
 	server := New(r, db, logger)
-
 	server.group = server.router.Group("/api/v1")
-
 	server.group.GET("/ping", ping)
-
 	server.Router()
 	server.AuthRouter()
 

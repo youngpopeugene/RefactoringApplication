@@ -192,8 +192,12 @@ func (gw *gateway) CreateRequest(workerUsername string, transformerFactoryNumber
 		DateOpened:               time.Now(),
 	}
 
-	gw.db.Model(&transformer).Association("TransformerFactoryNumber").Append(&request)
-	gw.db.Model(&user).Association("WorkerUsername").Append(&request)
+	if err := gw.db.Model(&transformer).Association("TransformerFactoryNumber").Append(&request); err != nil {
+		return domain.Request{}, err
+	}
+	if err := gw.db.Model(&user).Association("WorkerUsername").Append(&request); err != nil {
+		return domain.Request{}, err
+	}
 	gw.db.Create(&request)
 	return request, nil
 }
@@ -220,8 +224,12 @@ func (gw *gateway) UpdateRequest(workerUsername string, transformerFactoryNumber
 	request.IsCompleted = true
 	request.DateClosed = time.Now()
 
-	gw.db.Model(&transformer).Association("TransformerFactoryNumber").Append(&request)
-	gw.db.Model(&user).Association("WorkerUsername").Append(&request)
+	if err := gw.db.Model(&transformer).Association("TransformerFactoryNumber").Append(&request); err != nil {
+		return domain.Request{}, err
+	}
+	if err := gw.db.Model(&user).Association("WorkerUsername").Append(&request); err != nil {
+		return domain.Request{}, err
+	}
 	gw.db.Save(&request)
 	return request, nil
 }

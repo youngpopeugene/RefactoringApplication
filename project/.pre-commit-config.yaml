@@ -1,0 +1,23 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: run fmt
+        entry: cd project && make format
+        language: system
+        stages: [ commit ]
+      - id: lint
+        name: run golangCI-lint
+        entry: cd project && make lint
+        language: system
+        stages: [ commit ]
+      - id: test
+        name: run test
+        entry: cd project && make test
+        language: system
+        stages: [commit]
+      - id: gosec
+        name: run gosec
+        entry: cd project && make gosec
+        language: system
+        stages: [ commit ]

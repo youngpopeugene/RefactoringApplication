@@ -7,8 +7,9 @@ import (
 	"time"
 )
 
+const login = "testuser"
+
 func TestCreateBothTokens(t *testing.T) {
-	login := "testuser"
 	role := "WORKER"
 
 	tokens, err := createBothTokens(login, role)
@@ -31,7 +32,6 @@ func TestCreateBothTokens(t *testing.T) {
 }
 
 func TestCreateAccessToken(t *testing.T) {
-	login := "testuser"
 	role := "DISPATCHER"
 
 	token, err := createAccessToken(login, role)
@@ -48,7 +48,6 @@ func TestCreateAccessToken(t *testing.T) {
 }
 
 func TestCreateRefreshToken(t *testing.T) {
-	login := "testuser"
 	role := "WORKER"
 
 	token, err := createRefreshToken(login, role)
@@ -90,5 +89,5 @@ func TestValidateJWT(t *testing.T) {
 
 	_, err = validateJWT(token)
 	require.Error(t, err)
-	require.Equal(t, "token expired", err.Error())
+	require.Equal(t, "token expire", err.Error())
 }

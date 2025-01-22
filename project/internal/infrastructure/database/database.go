@@ -3,6 +3,7 @@ package database
 import (
 	"app/internal/config"
 	"fmt"
+
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
