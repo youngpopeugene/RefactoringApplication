@@ -17,11 +17,11 @@ func failOnError(err error) {
 
 func bindEnvs() {
 	viper.AutomaticEnv()
-
 	failOnError(viper.BindEnv("db.host", "DB_HOST"))
 	failOnError(viper.BindEnv("db.port", "DB_PORT"))
 	failOnError(viper.BindEnv("db.user", "DB_USER"))
 	failOnError(viper.BindEnv("db.pwd", "DB_PWD"))
+	failOnError(viper.BindEnv("jwt.secret", "JWT_SECRET"))
 }
 
 func setDefaultValues() {

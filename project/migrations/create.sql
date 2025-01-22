@@ -105,5 +105,10 @@ create table if not exists requests
     is_completed               boolean default false,
     date_opened                date,
     date_closed                date
-
+);
+create table if not exists tokens
+(
+    uuid TEXT primary key,
+    username VARCHAR(20) not null,
+    active bool default true
 );
