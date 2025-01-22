@@ -89,5 +89,5 @@ func TestValidateJWT(t *testing.T) {
 
 	_, err = validateJWT(token)
 	require.Error(t, err)
-	require.Equal(t, "token expire", err.Error())
+	require.Equal(t, "token expired", err.Error())
 }
